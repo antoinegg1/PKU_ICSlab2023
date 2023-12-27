@@ -1,0 +1,62 @@
+
+# Execution begins at address 0 
+	.pos 0
+	irmovq stack, %rsp  	# Set up stack pointer
+	call main		# Execute main program
+	halt			# Terminate program 
+# Sample linked list
+.align 8
+Array:
+.quad 0xbca
+.quad 0xcba
+.quad 0xacb
+.quad 0xcab
+.quad 0xabc
+.quad 0xbac
+#function 
+main: irmovq Array,%rdi
+    irmovq $6,%rsi
+    call bubble_sort
+    ret
+# bubble_sort *data in rdi,count in rsi
+bubble_sort:
+    irmovq $8,%r8
+    irmovq $-1,%r11
+    xorq %r9,%r9
+    call loop_for_last
+    jmp test1
+loop_first:
+    rrmovq %rdi,%r10
+    subq %r8,%r9
+    addq %r9,%r10
+    rrmovq %rdi,%r12
+loop_second:
+    subq %r12,%r10
+    jle test1
+    addq %r12,%r10
+    mrmovq (%r12),%rbx
+    mrmovq $8(%r12),%rbp
+    subq %rbx,%rbp
+    jge test2
+    addq %rbx,%rbp
+    rmmovq %rbx,$8(%r12)
+    rmmovq %rbp,(%r12)
+test2: 
+    addq %r8,%r12
+    jmp loop_second
+test1: 
+    andq %r9,%r9
+    jne loop_first
+    ret
+loop_for_last:
+    andq %rsi,%rsi
+    je return
+    addq %r8,%r9
+    addq %r11,%rsi
+    jmp loop_for_last
+return:
+    ret
+# does not corrupt other memory locations?
+# Stack starts here and grows to lower addresses
+	.pos 0x200
+stack:
